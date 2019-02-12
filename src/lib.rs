@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-struct Emitter {
-    pub redis: redis::Client,
-    pub prefix: String,
-    pub nsp: String,
-    pub channel: String,
+pub struct Emitter {
+    redis: redis::Client,
+    prefix: String,
+    nsp: String,
+    channel: String,
     rooms: Vec<String>,
     flags: HashMap<String, bool>,
     uid: String,
@@ -24,7 +24,7 @@ struct Opts {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct Packet {
+pub struct Packet {
     #[serde(rename = "type")]
     _type: i32,
     data: Vec<String>,
@@ -32,14 +32,14 @@ struct Packet {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-struct EmitterOpts<'a> {
+pub struct EmitterOpts<'a> {
     host: String,
     port: i32,
     socket: Option<String>,
     key: Option<&'a str>,
 }
 
-trait New<T> {
+pub trait New<T> {
     fn new(_: T) -> Emitter;
 }
 
@@ -133,22 +133,3 @@ impl Emitter {
         self
     }
 }
-
-// fn main() {
-//     let client = redis::Client::open("redis://localhost").unwrap();
-//     let io = Emitter::new(client);
-//     // let io = Emitter::new(EmitterOpts {
-//     //     host: "localhost".to_string(),
-//     //     port: 6379,
-//     //     socket: None,
-//     //     key: None,
-//     // });
-//     //    io.clone()
-//     //        .of("nsp1")
-//     //        .to("room1")
-//     //        .emit(vec!["key1", "value1"]);
-//     io.of("nsp1")
-//         .to("room1")
-//         .to("room2")
-//         .emit(vec!["key1", "value1"]);
-// }
