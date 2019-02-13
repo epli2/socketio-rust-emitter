@@ -10,4 +10,6 @@ matrix:
   fast_finish: true
 deploy:
   provider: cargo
-  token:
+  token: $CRATESIO_TOKEN
+  on:
+    tags: true
