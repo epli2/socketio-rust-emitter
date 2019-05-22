@@ -39,40 +39,39 @@ pub struct EmitterOpts<'a> {
     key: Option<&'a str>,
 }
 
-pub trait New<T> {
-    fn new(_: T) -> Emitter;
+pub trait IntoEmitter {
+    fn into_emitter(self) -> Emitter;
 }
 
-impl New<redis::Client> for Emitter {
-    fn new(redis: redis::Client) -> Emitter {
-        Emitter::emitter(redis, "socket.io", "/")
+impl IntoEmitter for redis::Client {
+    fn into_emitter(self) -> Emitter {
+        create_emitter(self, "socket.io", "/")
     }
 }
 
-impl<'a> New<EmitterOpts<'a>> for Emitter {
-    fn new(opts: EmitterOpts) -> Emitter {
-        let addr = format!("redis://{}:{}", opts.host, opts.port);
-        let prefix = match opts.key {
+impl<'a> IntoEmitter for EmitterOpts<'a> {
+    fn into_emitter(self) -> Emitter {
+        let addr = format!("redis://{}:{}", self.host, self.port);
+        let prefix = match self.key {
             Some(key) => key,
             None => "socket.io",
         };
 
-        Emitter::emitter(redis::Client::open(addr.as_str()).unwrap(), prefix, "/")
+        create_emitter(redis::Client::open(addr.as_str()).unwrap(), prefix, "/")
     }
 }
 
-impl New<&str> for Emitter {
-    fn new(addr: &str) -> Emitter {
-        Emitter::emitter(
-            redis::Client::open(format!("redis://{}", addr).as_str()).unwrap(),
+impl IntoEmitter for &str {
+    fn into_emitter(self) -> Emitter {
+        create_emitter(
+            redis::Client::open(format!("redis://{}", self).as_str()).unwrap(),
             "socket.io",
             "/",
         )
     }
 }
 
-impl Emitter {
-    fn emitter(redis: redis::Client, prefix: &str, nsp: &str) -> Emitter {
+fn create_emitter(redis: redis::Client, prefix: &str, nsp: &str) -> Emitter {
         Emitter {
             redis: redis,
             prefix: prefix.to_string(),
@@ -83,12 +82,18 @@ impl Emitter {
             uid: "emitter".to_string(),
         }
     }
+
+impl Emitter {
+    pub fn new<I: IntoEmitter>(data: I) -> Emitter {
+        data.into_emitter()
+    }
+
     pub fn to(mut self, room: &str) -> Emitter {
         self.rooms.push(room.to_string());
         self
     }
     pub fn of(self, nsp: &str) -> Emitter {
-        Emitter::emitter(self.redis, self.prefix.as_str(), nsp)
+        create_emitter(self.redis, self.prefix.as_str(), nsp)
     }
     pub fn json(mut self) -> Emitter {
         let mut flags = HashMap::new();
