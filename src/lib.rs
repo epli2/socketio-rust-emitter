@@ -72,16 +72,16 @@ impl IntoEmitter for &str {
 }
 
 fn create_emitter(redis: redis::Client, prefix: &str, nsp: &str) -> Emitter {
-        Emitter {
-            redis: redis,
-            prefix: prefix.to_string(),
-            nsp: nsp.to_string(),
-            channel: format!("{}#{}#", prefix, nsp),
-            rooms: Vec::new(),
-            flags: HashMap::new(),
-            uid: "emitter".to_string(),
-        }
+    Emitter {
+        redis: redis,
+        prefix: prefix.to_string(),
+        nsp: nsp.to_string(),
+        channel: format!("{}#{}#", prefix, nsp),
+        rooms: Vec::new(),
+        flags: HashMap::new(),
+        uid: "emitter".to_string(),
     }
+}
 
 impl Emitter {
     pub fn new<I: IntoEmitter>(data: I) -> Emitter {
