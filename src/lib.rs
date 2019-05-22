@@ -31,7 +31,7 @@ pub struct Packet {
     nsp: String,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct EmitterOpts<'a> {
     host: String,
     port: i32,
