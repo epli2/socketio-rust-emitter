@@ -4,11 +4,11 @@ version = "0.1.0"
 authors = ["Ryo Motozawa <motoryo1@gmail.com>"]
 edition = "2018"
 
-description = "socket.io-emitter for Rust"
+description = "A Rust implementation of socketio-emitter "
 homepage = "https://github.com/epli2/socketio-rust-emitter"
 repository = "https://github.com/epli2/socketio-rust-emitter"
 readme = "README.md"
-keywords = ["socket.io"]
+keywords = ["socketio"]
 license = "MIT"
 
 [dependencies]
