@@ -128,7 +128,7 @@ impl Emitter {
         val.serialize(&mut Serializer::new_named(&mut msg)).unwrap();
 
         let channel = if self.rooms.len() == 1 {
-            format!("{}{}", self.channel.clone(), self.rooms.join("#"))
+            format!("{}{}#", self.channel.clone(), self.rooms.join("#"))
         } else {
             self.channel.clone()
         };
