@@ -12,3 +12,8 @@ keywords = ["socket.io"]
 license = "MIT"
 
 [dependencies]
+redis = "0.10.0"
+rmp = "0.8.7"
+serde = "1.0.91"
+serde_derive = "1.0.91"
+rmp-serde = "0.13.7"
