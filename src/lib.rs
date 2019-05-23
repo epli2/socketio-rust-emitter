@@ -33,10 +33,10 @@ pub struct Packet {
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct EmitterOpts<'a> {
-    host: String,
-    port: i32,
-    socket: Option<String>,
-    key: Option<&'a str>,
+    pub host: String,
+    pub port: i32,
+    pub socket: Option<String>,
+    pub key: Option<&'a str>,
 }
 
 pub trait IntoEmitter {
