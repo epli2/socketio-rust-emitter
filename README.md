@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/epli2/socketio-rust-emitter.svg?branch=master)](https://travis-ci.org/epli2/socketio-rust-emitter)
 
+A Rust implementation of [socket.io-emitter](https://github.com/socketio/socket.io-emitter).
+
 ## How to use
 
 ```rust
