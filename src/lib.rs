@@ -138,3 +138,155 @@ impl Emitter {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{Emitter, Opts, Packet};
+    use redis::Msg;
+    use rmp_serde::Deserializer;
+    use serde::Deserialize;
+
+    macro_rules! create_redis {
+        ($redis:ident) => {
+            use testcontainers::{clients, core::RunArgs, images, Docker};
+            let docker = clients::Cli::default();
+            let container =
+                docker.run_with_args(images::redis::Redis::default(), RunArgs::default());
+            let redis_url = format!(
+                "redis://localhost:{}",
+                container.get_host_port(6379).unwrap()
+            );
+            let $redis = redis::Client::open(redis_url.as_str()).unwrap();
+        };
+    }
+
+    fn decode_msg(msg: Msg) -> (String, Packet, Opts) {
+        let payload: Vec<u8> = msg.get_payload().unwrap();
+        let mut de = Deserializer::new(&payload[..]);
+        Deserialize::deserialize(&mut de).unwrap()
+    }
+
+    #[test]
+    fn emit() {
+        create_redis!(redis);
+        let mut con = redis.get_connection().unwrap();
+        let mut pubsub = con.as_pubsub();
+        pubsub.subscribe("socket.io#/#").unwrap();
+
+        // act
+        let io = Emitter::new(redis);
+        io.emit(vec!["test1", "test2"]);
+
+        // assert
+        let actual = decode_msg(pubsub.get_message().unwrap());
+        assert_eq!("emitter", actual.0);
+        assert_eq!(
+            Packet {
+                _type: 2,
+                data: vec!["test1".to_string(), "test2".to_string()],
+                nsp: "/".to_string(),
+            },
+            actual.1
+        );
+        assert_eq!(
+            Opts {
+                rooms: vec![],
+                flags: Default::default()
+            },
+            actual.2
+        );
+    }
+
+    #[test]
+    fn emit_in_namespaces() {
+        create_redis!(redis);
+        let mut con = redis.get_connection().unwrap();
+        let mut pubsub = con.as_pubsub();
+        pubsub.subscribe("socket.io#/custom#").unwrap();
+
+        // act
+        let io = Emitter::new(redis);
+        io.of("/custom").emit(vec!["test"]);
+
+        // assert
+        let actual = decode_msg(pubsub.get_message().unwrap());
+        assert_eq!("emitter", actual.0);
+        assert_eq!(
+            Packet {
+                _type: 2,
+                data: vec!["test".to_string()],
+                nsp: "/custom".to_string(),
+            },
+            actual.1
+        );
+        assert_eq!(
+            Opts {
+                rooms: vec![],
+                flags: Default::default()
+            },
+            actual.2
+        );
+    }
+
+    #[test]
+    fn emit_to_namespaces() {
+        create_redis!(redis);
+        let mut con = redis.get_connection().unwrap();
+        let mut pubsub = con.as_pubsub();
+        pubsub.subscribe("socket.io#/custom#").unwrap();
+
+        // act
+        let io = Emitter::new(redis);
+        io.of("/custom").emit(vec!["test"]);
+
+        // assert
+        let actual = decode_msg(pubsub.get_message().unwrap());
+        assert_eq!("emitter", actual.0);
+        assert_eq!(
+            Packet {
+                _type: 2,
+                data: vec!["test".to_string()],
+                nsp: "/custom".to_string(),
+            },
+            actual.1
+        );
+        assert_eq!(
+            Opts {
+                rooms: vec![],
+                flags: Default::default()
+            },
+            actual.2
+        );
+    }
+
+    #[test]
+    fn emit_to_room() {
+        create_redis!(redis);
+        let mut con = redis.get_connection().unwrap();
+        let mut pubsub = con.as_pubsub();
+        pubsub.subscribe("socket.io#/#room1#").unwrap();
+
+        // act
+        let io = Emitter::new(redis);
+        io.to("room1").emit(vec!["test"]);
+
+        // assert
+        let actual = decode_msg(pubsub.get_message().unwrap());
+        assert_eq!("emitter", actual.0);
+        assert_eq!(
+            Packet {
+                _type: 2,
+                data: vec!["test".to_string()],
+                nsp: "/".to_string(),
+            },
+            actual.1
+        );
+        assert_eq!(
+            Opts {
+                rooms: vec!["room1".to_string()],
+                flags: Default::default()
+            },
+            actual.2
+        );
+    }
+}
