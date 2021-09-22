@@ -12,11 +12,11 @@ keywords = ["socketio"]
 license = "MIT"
 
 [dependencies]
-redis = "0.10.0"
-rmp = "0.8.7"
-serde = "1.0.91"
-serde_derive = "1.0.91"
-rmp-serde = "0.13.7"
+redis = "0.21.2"
+rmp = "0.8.10"
+serde = "1.0.130"
+serde_derive = "1.0.130"
+rmp-serde = "0.15.5"
 
 [dev-dependencies]
 testcontainers = "0.12.0"
