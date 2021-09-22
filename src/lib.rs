@@ -52,10 +52,7 @@ impl IntoEmitter for redis::Client {
 impl<'a> IntoEmitter for EmitterOpts<'a> {
     fn into_emitter(self) -> Emitter {
         let addr = format!("redis://{}:{}", self.host, self.port);
-        let prefix = match self.key {
-            Some(key) => key,
-            None => "socket.io",
-        };
+        let prefix = self.key.unwrap_or("socket.io");
 
         create_emitter(redis::Client::open(addr.as_str()).unwrap(), prefix, "/")
     }
@@ -73,7 +70,7 @@ impl IntoEmitter for &str {
 
 fn create_emitter(redis: redis::Client, prefix: &str, nsp: &str) -> Emitter {
     Emitter {
-        redis: redis,
+        redis,
         prefix: prefix.to_string(),
         nsp: nsp.to_string(),
         channel: format!("{}#{}#", prefix, nsp),
@@ -128,7 +125,7 @@ impl Emitter {
         val.serialize(&mut Serializer::new_named(&mut msg)).unwrap();
 
         let channel = if self.rooms.len() == 1 {
-            format!("{}{}#", self.channel.clone(), self.rooms.join("#"))
+            format!("{}{}#", self.channel, self.rooms.join("#"))
         } else {
             self.channel.clone()
         };
