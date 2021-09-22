@@ -1,6 +1,6 @@
 # socketio-rust-emitter
 
-[![Build Status](https://travis-ci.org/epli2/socketio-rust-emitter.svg?branch=master)](https://travis-ci.org/epli2/socketio-rust-emitter)
+[![build status](https://github.com/epli2/socketio-rust-emitter/actions/workflows/ci.yaml/badge.svg?branch=master&event=push)](https://github.com/epli2/socketio-rust-emitter/actions)
 [![socketio-rust-emitter at crates.io](https://img.shields.io/crates/v/socketio-rust-emitter.svg)](https://crates.io/crates/socketio-rust-emitter)
 [![socketio-rust-emitter at docs.rs](https://docs.rs/socketio-rust-emitter/badge.svg)](https://docs.rs/socketio-rust-emitter)
 
