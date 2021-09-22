@@ -122,7 +122,8 @@ impl Emitter {
         };
         let mut msg = Vec::new();
         let val = (self.uid.clone(), packet, opts);
-        val.serialize(&mut Serializer::new_named(&mut msg)).unwrap();
+        val.serialize(&mut Serializer::new(&mut msg).with_struct_map())
+            .unwrap();
 
         let channel = if self.rooms.len() == 1 {
             format!("{}{}#", self.channel, self.rooms.join("#"))
